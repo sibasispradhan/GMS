@@ -212,7 +212,7 @@ def addTrainor():
     password = sha256_crypt.encrypt(str(form.password.data))
     street = form.street.data
     city = form.city.data
-    prof = 2
+    prof = 3
     phone = form.phone.data
 
     cur = mysql
@@ -320,7 +320,7 @@ def addRecep():
         'password': password,
         'street': street,
         'city': city,
-        'prof': 2,
+        'prof': 3,
         'phone': phone
       })
 
@@ -784,8 +784,7 @@ def memberDash(username):
   progress = n.mappings().all()
   result = []
   for row in progress:
-    value = row._mapping
-    result.append(int(value['rate']))
+    result.append(int(row['rate']))
   good = result.count(1)
   poor = result.count(3)
   average = result.count(2)
