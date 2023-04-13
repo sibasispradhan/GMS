@@ -3,3 +3,4 @@ gunicorn
 sqlalchemy
 pymysql
 wraps
+flask-wtf
