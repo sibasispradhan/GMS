@@ -4,3 +4,4 @@ sqlalchemy
 pymysql
 wraps
 flask-wtf
+passlib
