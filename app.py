@@ -452,7 +452,9 @@ def removeEquip():
       flash('you must enter valid number', 'danger')
   return render_template('removeEquip.html', form=form)
 
+
 choices2 = []
+
 
 class AddMemberForm(Form):
   name = StringField('Name', [validators.Length(min=1, max=50)])
@@ -471,6 +473,7 @@ class AddMemberForm(Form):
   street = StringField('Street', [validators.Length(min=1, max=100)])
   city = StringField('City', [validators.Length(min=1, max=100)])
   phone = StringField('Phone', [validators.Length(min=1, max=100)])
+
 
 @app.route('/addMember', methods=['GET', 'POST'])
 @is_logged_in
@@ -514,12 +517,26 @@ def addMember():
     plan = form.plan.data
     trainor = form.trainor.data
     cur = mysql
-    cur.execute(text(
-      "INSERT INTO info(name, username, password, street, city, prof, phone) VALUES(:name, :username, :password, :street, :city, :prof, :phone)"),
-      {'name': name, 'username': username, 'password': password, 'street': street, 'city': city, 'prof': 4, 'phone': phone})
-    cur.execute(text(
-      "INSERT INTO members(username, plan, trainor) VALUES(:username, :plan, :trainor)"),
-      {'username': username, 'plan': plan, 'trainor': trainor})
+    cur.execute(
+      text(
+        "INSERT INTO info(name, username, password, street, city, prof, phone) VALUES(:name, :username, :password, :street, :city, :prof, :phone)"
+      ), {
+        'name': name,
+        'username': username,
+        'password': password,
+        'street': street,
+        'city': city,
+        'prof': 4,
+        'phone': phone
+      })
+    cur.execute(
+      text(
+        "INSERT INTO members(username, plan, trainor) VALUES(:username, :plan, :trainor)"
+      ), {
+        'username': username,
+        'plan': plan,
+        'trainor': trainor
+      })
     #mysql.connection.commit()
     #cur.close()
     choices2.clear()
@@ -529,6 +546,7 @@ def addMember():
       return redirect(url_for('adminDash'))
     return redirect(url_for('recepDash'))
   return render_template('addMember.html', form=form)
+
 
 @app.route('/deleteMember', methods=['GET', 'POST'])
 @is_logged_in
@@ -546,8 +564,10 @@ def deleteMember():
   if request.method == 'POST':
     username = form.username.data
     cur = mysql
-    cur.execute(text("DELETE FROM members WHERE username = :username"), {'username': username})
-    cur.execute(text("DELETE FROM info WHERE username = :username"), {'username': username})
+    cur.execute(text("DELETE FROM members WHERE username = :username"),
+                {'username': username})
+    cur.execute(text("DELETE FROM info WHERE username = :username"),
+                {'username': username})
     #mysql.connection.commit()
     #cur.close()
     choices.clear()
@@ -557,23 +577,27 @@ def deleteMember():
     return redirect(url_for('recepDash'))
   return render_template('deleteRecep.html', form=form)
 
+
 @app.route('/viewDetails')
 def viewDetails():
   cur = mysql
-  ds = cur.execute(text("SELECT username FROM info WHERE username != :username"),
-              {'username': session['username']})
+  ds = cur.execute(
+    text("SELECT username FROM info WHERE username != :username"),
+    {'username': session['username']})
   dt = ds.all()
   result = []
   for row in dt:
     value = row._mapping
     result.append(value)
-    
+
   return render_template('viewDetails.html', result=result)
+
 
 @app.route('/recepDash')
 @is_recep_level
 def recepDash():
   return render_template('recepDash.html')
+
 
 class trainorForm(Form):
   name = RadioField('Select Username', choices=choices)
@@ -582,6 +606,7 @@ class trainorForm(Form):
   rate = RadioField('Result',
                     choices=[('good', 'good'), ('average', 'average'),
                              ('poor', 'poor')])
+
 
 @app.route('/trainorDash', methods=['GET', 'POST'])
 @is_logged_in
@@ -596,8 +621,9 @@ def trainorDash():
     value = row._mapping
     equips.append(value)
   #app.logger.info(equips)
-  ds = cur.execute(text("SELECT username FROM members WHERE trainor = :trainor"),
-              {'trainor': session['username']})
+  ds = cur.execute(
+    text("SELECT username FROM members WHERE trainor = :trainor"),
+    {'trainor': session['username']})
   dt = ds.all()
   members_under = []
   for row in dt:
@@ -606,8 +632,9 @@ def trainorDash():
   #cur.close()
   #cur = mysql
 
-  ds = cur.execute(text("SELECT username FROM members WHERE trainor = :trainer"),
-                  {'trainer': session['username']})
+  ds = cur.execute(
+    text("SELECT username FROM members WHERE trainor = :trainer"),
+    {'trainer': session['username']})
   dt = ds.all()
   for row in dt:
     value = row._mapping
@@ -636,8 +663,9 @@ def trainorDash():
       return redirect(url_for('trainorDash'))
 
     cur = mysql
-    ds = cur.execute(text("SELECT date FROM progress WHERE username = :username"),
-                    {'username': username})
+    ds = cur.execute(
+      text("SELECT date FROM progress WHERE username = :username"),
+      {'username': username})
     entered = []
     dt = ds.all()
     for row in dt:
@@ -645,16 +673,30 @@ def trainorDash():
       entered.append(value['date'])
 
     if date in entered:
-      ds = cur.execute(text("UPDATE progress SET daily_result = :report, rate = :rate WHERE username = :username and date = :date"),
-        {'report': report, 'rate': rate, 'username': username, 'date': date})
+      ds = cur.execute(
+        text(
+          "UPDATE progress SET daily_result = :report, rate = :rate WHERE username = :username and date = :date"
+        ), {
+          'report': report,
+          'rate': rate,
+          'username': username,
+          'date': date
+        })
       #mysql.connection.commit()
       #cur.close()
       choices.clear()
       flash('Succesfully updated!', 'success')
       return redirect(url_for('trainorDash'))
 
-    cur.execute(text("INSERT INTO progress(username, date, daily_result, rate) VALUES(:username, :date, :report, :rate)"),
-      {'username': username, 'date' : date, 'report': report, 'rate': rate})
+    cur.execute(
+      text(
+        "INSERT INTO progress(username, date, daily_result, rate) VALUES(:username, :date, :report, :rate)"
+      ), {
+        'username': username,
+        'date': date,
+        'report': report,
+        'rate': rate
+      })
     #mysql.connection.commit()
     #cur.close()
     choices.clear()
@@ -666,11 +708,13 @@ def trainorDash():
                          form=form,
                          members=members_under)
 
+
 class UpdatePlanForm(Form):
   name = StringField('Plan Name', [validators.Length(min=1, max=50)])
   exercise = StringField('Exercise', [validators.Length(min=1, max=100)])
   reps = IntegerField('Reps', [validators.NumberRange(min=1, max=20)])
   sets = IntegerField('Sets', [validators.NumberRange(min=1, max=20)])
+
 
 @app.route('/updatePlans', methods=['GET', 'POST'])
 @is_trainor
@@ -682,15 +726,34 @@ def updatePlans():
     reps = form.reps.data
     sets = form.sets.data
     cur = mysql
-    ds = cur.execute(text("SELECT name, exercise FROM plans WHERE name = :name and exercise = :exercise"),
-      {'name': name, 'exercise': exercise})
+    ds = cur.execute(
+      text(
+        "SELECT name, exercise FROM plans WHERE name = :name and exercise = :exercise"
+      ), {
+        'name': name,
+        'exercise': exercise
+      })
     result = ds.mappings().all()
     if len(result) > 0:
-      ds = cur.execute(text("UPDATE plans SET sets=:sets, reps= :reps WHERE name = :name and exercise = :exercise"),
-        {'sets': sets, 'reps': reps, 'name': name, 'exercise': exercise})
+      ds = cur.execute(
+        text(
+          "UPDATE plans SET sets=:sets, reps= :reps WHERE name = :name and exercise = :exercise"
+        ), {
+          'sets': sets,
+          'reps': reps,
+          'name': name,
+          'exercise': exercise
+        })
     else:
-      ds = cur.execute(text("INSERT INTO plans(name, exercise, sets, reps) VALUES(:name, :exercise, :sets, :reps)"),
-        {'name': name, 'exercise': exercise, 'sets': sets, 'reps': reps})
+      ds = cur.execute(
+        text(
+          "INSERT INTO plans(name, exercise, sets, reps) VALUES(:name, :exercise, :sets, :reps)"
+        ), {
+          'name': name,
+          'exercise': exercise,
+          'sets': sets,
+          'reps': reps
+        })
     #mysql.connection.commit()
     #cur.close()
     flash('You have updated the plan schemes', 'success')
@@ -705,24 +768,32 @@ def memberDash(username):
     flash('You aren\'t authorised to view other\'s Dashboards', 'danger')
     return redirect(url_for('memberDash', username=session['username']))
   cur = mysql
-  ds = cur.execute(text("SELECT plan FROM members WHERE username = :username"), {'username': username})
-  plan = ds.mappings().all()['plan']
-  q = cur.execute(text("SELECT exercise, reps, sets FROM plans WHERE name = :name"), {'name': plan})
+  ds = cur.execute(text("SELECT plan FROM members WHERE username = :username"),
+                   {'username': username})
+  #dt = ds.mappings().all()['plan']
+  rows = ds.mappings().all()
+  plan = dict(rows[0])['plan']
+  q = cur.execute(
+    text("SELECT exercise, reps, sets FROM plans WHERE name = :name"),
+    {'name': plan})
   scheme = q.mappings().all()
-  n = cur.execute(text("SELECT date, daily_result, rate FROM progress WHERE username = :username ORDER BY date DESC"),
-    {'username': username})
-  dt = n.all()
+  n = cur.execute(
+    text(
+      "SELECT date, daily_result, rate FROM progress WHERE username = :username ORDER BY date DESC"
+    ), {'username': username})
+  progress = n.mappings().all()
   result = []
-  for row in dt:
+  for row in progress:
     value = row._mapping
     result.append(int(value['rate']))
   good = result.count(1)
   poor = result.count(3)
   average = result.count(2)
   total = good + poor + average
-  good = round((good / total) * 100, 2)
-  average = round((average / total) * 100, 2)
-  poor = round((poor / total) * 100, 2)
+  if total > 0:
+    good = round((good / total) * 100, 2)
+    average = round((average / total) * 100, 2)
+    poor = round((poor / total) * 100, 2)
   #cur.close()
   return render_template('memberDash.html',
                          user=username,
@@ -774,7 +845,8 @@ def edit_profile(username):
       return redirect(url_for('trainorDash', username=username))
 
   cur = mysql
-  ds = cur.execute(text("SELECT * FROM info WHERE username = :username"), {'username': username})
+  ds = cur.execute(text("SELECT * FROM info WHERE username = :username"),
+                   {'username': username})
   dt = ds.mappings().all()
   result = dict(dt[0])
   form = EditForm(request.form)
@@ -795,7 +867,16 @@ def edit_profile(username):
     app.logger.info(name)
     app.logger.info(street)
     app.logger.info(city)
-    ds = cur.execute(text("UPDATE info SET name = :name, street = :street, city = :city, phone = :phone WHERE username = :username"),{'name': name, 'street': street, 'city': city, 'phone': phone, 'username': username})
+    ds = cur.execute(
+      text(
+        "UPDATE info SET name = :name, street = :street, city = :city, phone = :phone WHERE username = :username"
+      ), {
+        'name': name,
+        'street': street,
+        'city': city,
+        'phone': phone,
+        'username': username
+      })
     app.logger.info(ds)
     #mysql.connection.commit()
     #cur.close()
