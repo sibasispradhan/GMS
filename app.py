@@ -900,6 +900,7 @@ def logout():
 
 
 if __name__ == "__main__":
+  app.config['SESSION_TYPE'] = 'filesystem'
   app.secret_key = '120423@GMS'
   app.debug = True
   #manager = Manager(app)
