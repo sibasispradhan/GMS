@@ -890,7 +890,6 @@ def edit_profile(username):
       return redirect(url_for('trainorDash', username=username))
   return render_template('edit_profile.html', form=form)
 
-
 @app.route('/logout')
 @is_logged_in
 def logout():
@@ -901,7 +900,7 @@ def logout():
 
 if __name__ == "__main__":
   app.config['SESSION_TYPE'] = 'filesystem'
-  app.secret_key = '120423@GMS'
+  app.secret_key = os.urandom(24)
   app.debug = True
   #manager = Manager(app)
   #manager.secret_key = '528491@siva'
