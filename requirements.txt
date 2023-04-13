@@ -1,0 +1,7 @@
+Flask
+gunicorn
+sqlalchemy
+pymysql
+sha256_crypt
+wraps
+datetime
