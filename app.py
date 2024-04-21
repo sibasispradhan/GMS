@@ -14,17 +14,12 @@ app.secret_key = os.urandom(24)
 
 db_connection_string = os.environ['DB_CONNECTION_STRING']
 #print(db_connection_string)
-engine = create_engine(db_connection_string)
-
-"""
 engine = create_engine(db_connection_string,
                        connect_args={"ssl": {
                          "ssl_ca": "/etc/ssl/cert.pem"
                        }})
-"""
 
 mysql = engine.connect()
-
 
 def is_logged_in(f):
 
